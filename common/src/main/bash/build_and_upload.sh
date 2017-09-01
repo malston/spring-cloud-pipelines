@@ -11,11 +11,12 @@ export ENVIRONMENT=BUILD
 
 export CUSTOM_SCRIPT_IDENTIFIER="${CUSTOM_SCRIPT_IDENTIFIER:-custom}"
 echo "Custom Script Identifier is [${CUSTOM_SCRIPT_IDENTIFIER}]"
+mkdir -p "${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}"
 
-export CUSTOM_SCRIPT="$(basename "${BASH_SOURCE}" | sed 's/.sh/_custom.sh/g')"
+export CUSTOM_SCRIPT="$(basename "${BASH_SOURCE}")"
 echo "Custom script name is [${CUSTOM_SCRIPT}]"
 
-[[ -f "${__ROOT}/${CUSTOM_SCRIPT}" ]] && source "${__ROOT}/${CUSTOM_SCRIPT}" || \
-    echo "No ${__ROOT}/${CUSTOM_SCRIPT} found"
+[[ -f "${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}/${CUSTOM_SCRIPT}" ]] && source "${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}/${CUSTOM_SCRIPT}" || \
+    echo "No ${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}/${CUSTOM_SCRIPT} found"
 
 build
