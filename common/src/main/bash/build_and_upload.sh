@@ -9,4 +9,13 @@ export ENVIRONMENT=BUILD
 [[ -f "${__DIR}/pipeline.sh" ]] && source "${__DIR}/pipeline.sh" || \
     echo "No pipeline.sh found"
 
+export CUSTOM_SCRIPT_IDENTIFIER="${CUSTOM_SCRIPT_IDENTIFIER:-custom}"
+echo "Custom Script Identifier is [${CUSTOM_SCRIPT_IDENTIFIER}]"
+
+export CUSTOM_SCRIPT="$(basename "${BASH_SOURCE}" | sed 's/.sh/custom.sh/g')"
+echo "Custom script name is [${CUSTOM_SCRIPT}]"
+
+[[ -f "${__ROOT}/${CUSTOM_SCRIPT}" ]] && source "${__ROOT}/${CUSTOM_SCRIPT}" || \
+    echo "No ${__ROOT}/${CUSTOM_SCRIPT} found"
+
 build
