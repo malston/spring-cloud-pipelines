@@ -12,7 +12,7 @@ export ENVIRONMENT=BUILD
 export CUSTOM_SCRIPT_IDENTIFIER="${CUSTOM_SCRIPT_IDENTIFIER:-custom}"
 echo "Custom Script Identifier is [${CUSTOM_SCRIPT_IDENTIFIER}]"
 
-export CUSTOM_SCRIPT="$(basename "${BASH_SOURCE}" | sed 's/.sh/custom.sh/g')"
+export CUSTOM_SCRIPT="$(basename "${BASH_SOURCE}" | sed 's/.sh/_custom.sh/g')"
 echo "Custom script name is [${CUSTOM_SCRIPT}]"
 
 [[ -f "${__ROOT}/${CUSTOM_SCRIPT}" ]] && source "${__ROOT}/${CUSTOM_SCRIPT}" || \
