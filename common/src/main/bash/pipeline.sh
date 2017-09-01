@@ -191,3 +191,12 @@ export TEST_REPORTS_FOLDER=$( testResultsAntPattern )
 
 echo "Output folder [${OUTPUT_FOLDER}]"
 echo "Test reports folder [${TEST_REPORTS_FOLDER}]"
+
+export CUSTOM_SCRIPT_IDENTIFIER="${CUSTOM_SCRIPT_IDENTIFIER:-custom}"
+echo "Custom Script Identifier is [${CUSTOM_SCRIPT_IDENTIFIER}]"
+
+export CUSTOM_SCRIPT="$(basename "${BASH_SOURCE}" | sed 's/.sh/${CUSTOM_SCRIPT_IDENTIFIER}.sh/g')"
+echo "Custom script name is [${CUSTOM_SCRIPT}]"
+
+[[ -f "${__ROOT}/${CUSTOM_SCRIPT}" ]] && source "${__ROOT}/${CUSTOM_SCRIPT}" || \
+    echo "No ${__ROOT}/${CUSTOM_SCRIPT} found"
