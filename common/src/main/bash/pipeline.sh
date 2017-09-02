@@ -192,16 +192,14 @@ export TEST_REPORTS_FOLDER=$( testResultsAntPattern )
 echo "Output folder [${OUTPUT_FOLDER}]"
 echo "Test reports folder [${TEST_REPORTS_FOLDER}]"
 
-SOURCE_DIR="${BASH_SOURCE[@]}"
-echo "\$BASH_SOURCE is [${SOURCE_DIR}]"
+SOURCE_SCRIPT="$(basename ${BASH_SOURCE[1]})"
+echo "Sourced script name is [${SOURCE_SCRIPT}]"
 
 export CUSTOM_SCRIPT_IDENTIFIER="${CUSTOM_SCRIPT_IDENTIFIER:-custom}"
 echo "Custom Script Identifier is [${CUSTOM_SCRIPT_IDENTIFIER}]"
+CUSTOM_DIR="${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}"
 mkdir -p "${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}"
 
-export CUSTOM_SCRIPT="$(basename "${BASH_SOURCE}")"
-echo "Custom script name is [${CUSTOM_SCRIPT}]"
-
-[[ -f "${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}/${CUSTOM_SCRIPT}" ]] && source "${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}/${CUSTOM_SCRIPT}" || \
-    echo "No ${__ROOT}/${CUSTOM_SCRIPT_IDENTIFIER}/${CUSTOM_SCRIPT} found"
+[[ -f "${CUSTOM_DIR}/${SOURCE_SCRIPT}" ]] && source "${CUSTOM_DIR}/${SOURCE_SCRIPT}" || \
+    echo "No ${CUSTOM_DIR}/${SOURCE_SCRIPT} found"
 
