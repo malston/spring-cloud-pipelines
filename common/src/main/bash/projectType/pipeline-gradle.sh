@@ -5,16 +5,16 @@ function build() {
     echo "Additional Build Options [${BUILD_OPTIONS}]"
 
     if [[ "${CI}" == "CONCOURSE" ]]; then
-        ./gradlew clean build deploy -PnewVersion=${PIPELINE_VERSION} -DREPO_WITH_BINARIES=${REPO_WITH_BINARIES} --stacktrace ${BUILD_OPTIONS} || ( $( printTestResults ) && return 1)
+        # shellcheck disable=SC2086
+        ./gradlew clean build deploy -PnewVersion="${PIPELINE_VERSION}" -DREPO_WITH_BINARIES="${REPO_WITH_BINARIES}" --stacktrace ${BUILD_OPTIONS} || ( printTestResults && return 1)
     else
-        ./gradlew clean build deploy -PnewVersion=${PIPELINE_VERSION} -DREPO_WITH_BINARIES=${REPO_WITH_BINARIES} --stacktrace ${BUILD_OPTIONS}
+        # shellcheck disable=SC2086
+        ./gradlew clean build deploy -PnewVersion="${PIPELINE_VERSION}" -DREPO_WITH_BINARIES="${REPO_WITH_BINARIES}" --stacktrace ${BUILD_OPTIONS}
     fi
 }
 
 function apiCompatibilityCheck() {
     echo "Running retrieval of group and artifactid to download all dependencies. It might take a while..."
-    projectGroupId=$( retrieveGroupId )
-    appName=$( retrieveAppName )
 
     # Find latest prod version
     LATEST_PROD_TAG=$( findLatestProdTag )
@@ -27,31 +27,30 @@ function apiCompatibilityCheck() {
         echo "Last prod version equals ${LATEST_PROD_VERSION}"
         echo "Additional Build Options [${BUILD_OPTIONS}]"
         if [[ "${CI}" == "CONCOURSE" ]]; then
-            ./gradlew clean apiCompatibility -DlatestProductionVersion=${LATEST_PROD_VERSION} -DREPO_WITH_BINARIES=${REPO_WITH_BINARIES} --stacktrace ${BUILD_OPTIONS} || ( $( printTestResults ) && return 1)
+            # shellcheck disable=SC2086
+            ./gradlew clean apiCompatibility -DlatestProductionVersion="${LATEST_PROD_VERSION}" -DREPO_WITH_BINARIES="${REPO_WITH_BINARIES}" --stacktrace ${BUILD_OPTIONS} || ( printTestResults && return 1)
         else
-            ./gradlew clean apiCompatibility -DlatestProductionVersion=${LATEST_PROD_VERSION} -DREPO_WITH_BINARIES=${REPO_WITH_BINARIES} --stacktrace ${BUILD_OPTIONS}
+            # shellcheck disable=SC2086
+            ./gradlew clean apiCompatibility -DlatestProductionVersion="${LATEST_PROD_VERSION}" -DREPO_WITH_BINARIES="${REPO_WITH_BINARIES}" --stacktrace ${BUILD_OPTIONS}
         fi
     fi
 }
 
 function retrieveGroupId() {
-    local result=$( ./gradlew groupId -q )
-    result=$( echo "${result}" | tail -1 )
-    echo "${result}"
+    ./gradlew groupId -q | tail -1
 }
 
 function retrieveAppName() {
-    local result=$( ./gradlew artifactId -q )
-    result=$( echo "${result}" | tail -1 )
-    echo "${result}"
+    ./gradlew artifactId -q | tail -1
 }
 
 function printTestResults() {
+    # shellcheck disable=SC1117
     echo -e "\n\nBuild failed!!! - will print all test results to the console (it's the easiest way to debug anything later)\n\n" && tail -n +1 "$( testResultsAntPattern )"
 }
 
 function retrieveStubRunnerIds() {
-    echo "$( ./gradlew stubIds -q | tail -1 )"
+    ./gradlew stubIds -q | tail -1
 }
 
 function runSmokeTests() {
@@ -60,9 +59,11 @@ function runSmokeTests() {
     echo "Running smoke tests"
 
     if [[ "${CI}" == "CONCOURSE" ]]; then
-        ./gradlew smoke -PnewVersion=${PIPELINE_VERSION} -Dapplication.url="${applicationHost}" -Dstubrunner.url="${stubrunnerHost}" || ( echo "$( printTestResults )" && return 1)
+        # shellcheck disable=SC2086
+        ./gradlew smoke -PnewVersion="${PIPELINE_VERSION}" -Dapplication.url="${applicationHost}" -Dstubrunner.url="${stubrunnerHost}" ${BUILD_OPTIONS} || ( printTestResults && return 1)
     else
-        ./gradlew smoke -PnewVersion=${PIPELINE_VERSION} -Dapplication.url="${applicationHost}" -Dstubrunner.url="${stubrunnerHost}"
+        # shellcheck disable=SC2086
+        ./gradlew smoke -PnewVersion="${PIPELINE_VERSION}" -Dapplication.url="${applicationHost}" -Dstubrunner.url="${stubrunnerHost}" ${BUILD_OPTIONS}
     fi
 }
 
@@ -73,9 +74,11 @@ function runE2eTests() {
     echo "Running e2e tests"
 
     if [[ "${CI}" == "CONCOURSE" ]]; then
-        ./gradlew e2e -PnewVersion=${PIPELINE_VERSION} -Dapplication.url="${applicationHost}" ${BUILD_OPTIONS} || ( $( printTestResults ) && return 1)
+        # shellcheck disable=SC2086
+        ./gradlew e2e -PnewVersion="${PIPELINE_VERSION}" -Dapplication.url="${applicationHost}" ${BUILD_OPTIONS} || ( printTestResults && return 1)
     else
-        ./gradlew e2e -PnewVersion=${PIPELINE_VERSION} -Dapplication.url="${applicationHost}" ${BUILD_OPTIONS}
+        # shellcheck disable=SC2086
+        ./gradlew e2e -PnewVersion="${PIPELINE_VERSION}" -Dapplication.url="${applicationHost}" ${BUILD_OPTIONS}
     fi
 }
 

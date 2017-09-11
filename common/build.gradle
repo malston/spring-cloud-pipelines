@@ -8,3 +8,46 @@ sourceSets {
     }
 }
 
+Closure isShellcheckInstalled = { ->
+    try {
+        "shellcheck -V".execute()
+        return true
+    } catch (IOException e) {
+    }
+    return false
+}
+
+task installShellcheckIfMissing(type: Exec) {
+    boolean shellcheckInstalled = isShellcheckInstalled()
+    if (shellcheckInstalled) {
+        commandLine "echo", "Shellcheck installed - continuing"
+    } else {
+        println "Shellcheck is missing. Will install it. You'll be prompted for your sudo password"
+        commandLine "bash", new File(project.rootDir, "tools/build-helper.sh").path, "download-shellcheck"
+    }
+}
+
+task shellcheck {
+    doLast {
+        sourceSets*.resources.srcDirs*.each { srcDir ->
+            fileTree(relativePath(srcDir)).include('**/*.sh').each { File script ->
+                exec {
+                    boolean shellcheckInstalled = isShellcheckInstalled()
+                    String pathToShellcheck = "shellcheck"
+                    if (!shellcheckInstalled) {
+                        boolean fileCopied = new File("/usr/bin/shellcheck").exists()
+                        if (fileCopied) {
+                            pathToShellcheck = "/usr/bin/shellcheck"
+                        } else {
+                            pathToShellcheck = new File(project(":common").buildDir, "shellcheck-latest/shellcheck").path
+                        }
+                    }
+                    commandLine pathToShellcheck, script
+                }
+            }
+        }
+    }
+}
+
+shellcheck.dependsOn("installShellcheckIfMissing")
+build.dependsOn("shellcheck")
